@@ -1,45 +1,49 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
+ * Field Manager - Agricultural Supervisor Portal
+ * React Native CLI (No Expo)
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import 'react-native-gesture-handler';
+import React, {useEffect, useState} from 'react';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import SplashScreen from './src/screens/SplashScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import MainTabs from './src/navigation/MainTabs';
+import tokens from './src/styles/tokens';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createNativeStackNavigator();
+
+export default function App() {
+  const [ready, setReady] = useState(false);
+  const [isAuthenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // placeholder for any global initialisation
+  }, []);
+
+  if (!ready) {
+    return <SplashScreen onDone={() => setReady(true)} />;
+  }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <NavigationContainer>
+        {isAuthenticated ? (
+          <MainTabs />
+        ) : (
+          <Stack.Navigator screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Login">
+              {() => <LoginScreen onLogin={() => setAuthenticated(true)} />}
+            </Stack.Screen>
+          </Stack.Navigator>
+        )}
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;
+/* --- Demo data (mockTasks, mockRequests, mockProfile, mockHarvestOrders) --- */
+// ...existing mock data...

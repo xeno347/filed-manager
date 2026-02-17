@@ -20,5 +20,5 @@ export default function SplashScreen({onDone}: {onDone: () => void}) {
 const styles = StyleSheet.create({
   center: {justifyContent: 'center', alignItems: 'center'},
   title: {fontSize: 28, fontWeight: '800'},
-  caption: {marginTop: spacing.sm, color: palette.muted},
+  caption: {marginTop: spacing.sm, color: palette.textLight},
 });

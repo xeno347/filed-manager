@@ -3,19 +3,21 @@ import {View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import Icon from './Icon';
-import {palette} from '../styles/tokens';
+import {spacing} from '../styles/tokens';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useTheme} from '../context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 
 export default function BottomNav({state, descriptors, navigation}: any) {
   const focusedIndex = state.index;
   const insets = useSafeAreaInsets();
-  const paddingBottom = Math.max(10, (insets.bottom || 0) + 10);
+  const paddingBottom = Math.max(spacing.sm, (insets.bottom || 0) + spacing.sm);
+  const {colors, isDark} = useTheme();
 
   return (
-    <View style={[styles.container, {paddingBottom: insets.bottom ? 0 : 8}]} pointerEvents="box-none">
-      <View style={[styles.bar, {paddingBottom}]}>
+    <View style={[styles.container, {paddingBottom: insets.bottom ? 0 : spacing.sm}]} pointerEvents="box-none">
+      <View style={[styles.bar, {paddingBottom, backgroundColor: colors.card, borderTopColor: colors.border}]}> 
         {state.routes.map((route: any, idx: number) => {
           const focused = focusedIndex === idx;
           const label = route.name;
@@ -26,23 +28,23 @@ export default function BottomNav({state, descriptors, navigation}: any) {
               <View key={label} style={styles.homeSlot}>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Home')}
-                  activeOpacity={0.92}
+                  activeOpacity={0.85}
                   style={styles.homeOuter}
                 >
                   <Animatable.View
                     animation={focused ? 'pulse' : undefined}
                     iterationCount={focused ? 'infinite' : 1}
-                    style={styles.homeShadow}
+                    duration={1500}
+                    style={[styles.homeShadow, {shadowColor: colors.primary}]}
                   >
-                    <View style={styles.homeRing}>
-                      <LinearGradient colors={[palette.primary, '#059669']} style={styles.homeButton}>
-                        <Icon name={'home'} size={28} color={palette.white} />
-                      </LinearGradient>
-                    </View>
+                    <LinearGradient 
+                      colors={[colors.primary, colors.accent]} 
+                      style={styles.homeButton}
+                    >
+                      <Icon name={'home'} size={28} color={colors.white} />
+                    </LinearGradient>
                   </Animatable.View>
                 </TouchableOpacity>
-                {/* hide label when Home is active to match mock */}
-                {!focused && <Text style={[styles.label, {color: focused ? palette.primary : '#9CA3AF'}]}>Home</Text>}
               </View>
             );
           }
@@ -53,10 +55,22 @@ export default function BottomNav({state, descriptors, navigation}: any) {
               key={label}
               style={styles.item}
               onPress={() => navigation.navigate(route.name)}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
-              <Icon name={mapIconName(label)} size={22} color={focused ? palette.primary : '#9CA3AF'} />
-              <Text style={[styles.label, {color: focused ? palette.primary : '#9CA3AF'}]}>{label}</Text>
+              <Animatable.View
+                animation={focused ? 'bounceIn' : 'fadeOut'}
+                duration={300}
+                style={[styles.iconContainer, focused && {backgroundColor: isDark ? colors.accentSecondary + '22' : '#F0FDF4'}]}
+              >
+                <Icon 
+                  name={mapIconName(label)} 
+                  size={24} 
+                  color={focused ? colors.primary : colors.textTertiary} 
+                />
+              </Animatable.View>
+              <Text style={[styles.label, {color: focused ? colors.primary : colors.textTertiary}]}> 
+                {label}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -91,59 +105,62 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    // backgroundColor and borderTopColor are set dynamically
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
     width: '100%',
-    paddingTop: 8,
-    // paddingBottom dynamically applied from insets
+    paddingTop: spacing.md,
     justifyContent: 'space-around',
     alignItems: 'flex-end',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 5,
   },
   item: {
     alignItems: 'center',
     width: (width - 120) / 4,
+    paddingVertical: spacing.sm,
+  },
+  iconContainer: {
+    padding: spacing.sm,
+    borderRadius: 12,
+    marginBottom: spacing.xs,
   },
   label: {
-    fontSize: 12,
-    marginTop: 6,
+    fontSize: 11,
+    marginTop: spacing.xs,
     fontWeight: '600',
+    textAlign: 'center',
   },
+  // Home Button
   homeSlot: {
     alignItems: 'center',
-    width: 96,
-    marginTop: -30,
+    width: 100,
+    marginTop: -32,
   },
   homeOuter: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
-  },
-  homeRing: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: palette.white,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   homeShadow: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    shadowColor: palette.primary,
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.18,
+    // shadowColor is set dynamically
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 10,
   },
   homeButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
